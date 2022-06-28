@@ -5,14 +5,27 @@ function SignUpForm() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [passwordsMatch, setPasswordsMatch] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [passwordMeetsRequirements, setPasswordMeetsRequirements] =
+    useState(false);
 
   useEffect(() => {
-    if (password !== passwordConfirm) {
-      setPasswordsMatch(false);
-    } else {
-      setPasswordsMatch(true);
+    if (hasSubmitted) {
+      if (password !== passwordConfirm) {
+        setPasswordsMatch(false);
+      } else {
+        setPasswordsMatch(true);
+      }
     }
-  }, [password, passwordConfirm]);
+  }, [password, passwordConfirm, hasSubmitted]);
+
+  useEffect(() => {
+    const regex = new RegExp('(?=.*d)(?=.*[a-z])(?=.*[A-Z]).*');
+
+    if (hasSubmitted) {
+      setPasswordMeetsRequirements(password.match(regex));
+    }
+  }, [password, hasSubmitted]);
 
   function handleInputChange(e) {
     const { value, name } = e.target;
@@ -33,6 +46,8 @@ function SignUpForm() {
 
   function handleSubmit(e) {
     e.preventDefault();
+
+    setHasSubmitted(true);
   }
 
   return (
@@ -85,7 +100,7 @@ function SignUpForm() {
             className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
             placeholder="Confirm Password"
           />
-          {password !== '' || passwordConfirm !== '' ? (
+          {hasSubmitted ? (
             passwordsMatch ? (
               <span className="text-xs text-green-700" id="passwordHelp">
                 Passwords match.
@@ -96,16 +111,22 @@ function SignUpForm() {
               </span>
             )
           ) : null}
+          <div>
+            {hasSubmitted && !passwordMeetsRequirements ? (
+              <span className="text-xs text-red-700" id="passwordHelp">
+                Password must contain an uppercase and 1 digit.
+              </span>
+            ) : null}
+          </div>
         </div>
-      </div>
-
-      <div>
-        <button
-          onClick={handleSubmit}
-          type="submit"
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Sign Up
-        </button>
+        <div>
+          <button
+            onClick={handleSubmit}
+            type="submit"
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Sign Up
+          </button>
+        </div>
       </div>
     </form>
   );
